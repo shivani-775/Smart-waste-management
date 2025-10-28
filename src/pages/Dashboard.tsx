@@ -30,10 +30,12 @@ export default function Dashboard() {
   }));
 
   const displayRoutes = routes.slice(0, 3).map(route => ({
+    id: route.id,
     name: route.name,
     status: route.status,
     distance: `${route.distance_km} km`,
-    estimatedTime: `${route.estimated_time_minutes} min`
+    estimatedTime: `${route.estimated_time_minutes} min`,
+    bins: route.bins || []
   }));
 
   if (binsLoading || routesLoading || alertsLoading) {

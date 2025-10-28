@@ -4,13 +4,17 @@ import { Badge } from "@/components/ui/badge";
 import { Route, Clock, MapPin } from "lucide-react";
 
 interface RouteCardProps {
+  id: string;
   name: string;
   status: "planned" | "in_progress" | "completed";
   distance: string;
   estimatedTime: string;
+  bins: string[];
+  onViewRoute?: (id: string) => void;
+  onStartCollection?: (id: string) => void;
 }
 
-export function RouteCard({ name, status, distance, estimatedTime }: RouteCardProps) {
+export function RouteCard({ id, name, status, distance, estimatedTime, bins, onViewRoute, onStartCollection }: RouteCardProps) {
   const statusConfig = {
     planned: { label: "PLANNED", variant: "outline" as const, color: "text-muted-foreground" },
     in_progress: { label: "IN PROGRESS", variant: "default" as const, color: "text-primary" },
@@ -48,15 +52,29 @@ export function RouteCard({ name, status, distance, estimatedTime }: RouteCardPr
           <span className="font-semibold text-foreground">{estimatedTime}</span>
         </div>
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={() => onViewRoute?.(id)}
+          >
             View Route
           </Button>
           {status === "planned" && (
-            <Button size="sm" className="flex-1">
+            <Button 
+              size="sm" 
+              className="flex-1"
+              onClick={() => onStartCollection?.(id)}
+            >
               Start Collection
             </Button>
           )}
         </div>
+        {bins.length > 0 && (
+          <div className="text-xs text-muted-foreground mt-2">
+            {bins.length} bins in route
+          </div>
+        )}
       </CardContent>
     </Card>
   );

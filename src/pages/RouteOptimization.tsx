@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { RouteCard } from "@/components/RouteCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,19 +6,45 @@ import { Button } from "@/components/ui/button";
 import { Route, Plus, TrendingDown, Clock, Fuel } from "lucide-react";
 import { toast } from "sonner";
 import { useRoutes } from "@/hooks/useRoutes";
+import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function RouteOptimization() {
   const { routes, isLoading } = useRoutes();
+  const [selectedRoute, setSelectedRoute] = useState<string | null>(null);
 
   const handleCreateRoute = () => {
     toast.success("New optimized route created successfully!");
   };
 
+  const handleViewRoute = (routeId: string) => {
+    setSelectedRoute(routeId);
+  };
+
+  const handleStartCollection = async (routeId: string) => {
+    try {
+      const { error } = await supabase
+        .from("collection_routes")
+        .update({ status: "in_progress" })
+        .eq("id", routeId);
+
+      if (error) throw error;
+      toast.success("Collection started!");
+    } catch (error) {
+      toast.error("Failed to start collection");
+      console.error(error);
+    }
+  };
+
+  const selectedRouteData = routes.find(r => r.id === selectedRoute);
+
   const displayRoutes = routes.map(route => ({
+    id: route.id,
     name: route.name,
     status: route.status,
     distance: `${route.distance_km} km`,
-    estimatedTime: `${route.estimated_time_minutes} min`
+    estimatedTime: `${route.estimated_time_minutes} min`,
+    bins: route.bins || []
   }));
 
   if (isLoading) {
@@ -104,8 +131,13 @@ export default function RouteOptimization() {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {displayRoutes.length > 0 ? (
-                displayRoutes.map((route, index) => (
-                  <RouteCard key={index} {...route} />
+                displayRoutes.map((route) => (
+                  <RouteCard 
+                    key={route.id} 
+                    {...route}
+                    onViewRoute={handleViewRoute}
+                    onStartCollection={handleStartCollection}
+                  />
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground col-span-3 text-center py-4">
@@ -116,6 +148,32 @@ export default function RouteOptimization() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={!!selectedRoute} onOpenChange={() => setSelectedRoute(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedRouteData?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Status:</span>
+              <span className="font-semibold">{selectedRouteData?.status}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Distance:</span>
+              <span className="font-semibold">{selectedRouteData?.distance_km} km</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Time:</span>
+              <span className="font-semibold">{selectedRouteData?.estimated_time_minutes} min</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Bins:</span>
+              <span className="font-semibold">{selectedRouteData?.bins?.length || 0}</span>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
