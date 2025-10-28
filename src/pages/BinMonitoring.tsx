@@ -4,46 +4,144 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, MapPin, Trash2 } from "lucide-react";
+import { Search, Trash2, Plus } from "lucide-react";
 import { useState } from "react";
-
-const allBins = [
-  { id: "1", location: "Connaught Place", capacity: "100L", fillLevel: 45, status: "normal" as const },
-  { id: "2", location: "Gateway of India", capacity: "100L", fillLevel: 78, status: "warning" as const },
-  { id: "3", location: "Howrah Bridge", capacity: "100L", fillLevel: 92, status: "critical" as const },
-  { id: "4", location: "Charminar", capacity: "100L", fillLevel: 23, status: "low" as const },
-  { id: "5", location: "MG Road, Bengaluru", capacity: "100L", fillLevel: 67, status: "normal" as const },
-  { id: "6", location: "Marine Drive", capacity: "100L", fillLevel: 88, status: "warning" as const },
-  { id: "7", location: "India Gate", capacity: "100L", fillLevel: 34, status: "normal" as const },
-  { id: "8", location: "Victoria Memorial", capacity: "100L", fillLevel: 56, status: "normal" as const },
-];
+import { useBins } from "@/hooks/useBins";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export default function BinMonitoring() {
+  const { bins, isLoading } = useBins();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [open, setOpen] = useState(false);
+  const [newBin, setNewBin] = useState({
+    bin_id: "",
+    location: "",
+    capacity: 100,
+    fill_level: 0
+  });
 
-  const filteredBins = allBins.filter(bin => {
+  const filteredBins = bins.filter(bin => {
     const matchesSearch = bin.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || bin.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
+  const displayBins = filteredBins.map(bin => ({
+    id: bin.bin_id,
+    location: bin.location,
+    capacity: `${bin.capacity}L`,
+    fillLevel: bin.fill_level,
+    status: bin.status
+  }));
+
   const statusCounts = {
-    critical: allBins.filter(b => b.status === "critical").length,
-    warning: allBins.filter(b => b.status === "warning").length,
-    normal: allBins.filter(b => b.status === "normal").length,
-    low: allBins.filter(b => b.status === "low").length,
+    critical: bins.filter(b => b.status === "critical").length,
+    warning: bins.filter(b => b.status === "warning").length,
+    normal: bins.filter(b => b.status === "normal").length,
+    low: bins.filter(b => b.status === "low").length,
   };
+
+  const handleAddBin = async () => {
+    if (!newBin.bin_id || !newBin.location) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const { error } = await supabase.from("bins").insert({
+      bin_id: newBin.bin_id,
+      location: newBin.location,
+      capacity: newBin.capacity,
+      fill_level: newBin.fill_level
+    });
+
+    if (error) {
+      toast.error("Failed to add bin: " + error.message);
+    } else {
+      toast.success("Bin added successfully!");
+      setOpen(false);
+      setNewBin({ bin_id: "", location: "", capacity: 100, fill_level: 0 });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-muted-foreground">Loading bins data...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">Bin Monitoring</h2>
-          <p className="text-muted-foreground mt-1">
-            Track and manage all waste bins in real-time
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Bin Monitoring</h2>
+            <p className="text-muted-foreground mt-1">
+              Track and manage all waste bins in real-time
+            </p>
+          </div>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Bin
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Bin</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="bin-id">Bin ID *</Label>
+                  <Input
+                    id="bin-id"
+                    placeholder="BIN-009"
+                    value={newBin.bin_id}
+                    onChange={(e) => setNewBin({ ...newBin, bin_id: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location *</Label>
+                  <Input
+                    id="location"
+                    placeholder="Enter location"
+                    value={newBin.location}
+                    onChange={(e) => setNewBin({ ...newBin, location: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="capacity">Capacity (Liters)</Label>
+                  <Input
+                    id="capacity"
+                    type="number"
+                    value={newBin.capacity}
+                    onChange={(e) => setNewBin({ ...newBin, capacity: parseInt(e.target.value) })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fill-level">Initial Fill Level (%)</Label>
+                  <Input
+                    id="fill-level"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={newBin.fill_level}
+                    onChange={(e) => setNewBin({ ...newBin, fill_level: parseFloat(e.target.value) })}
+                  />
+                </div>
+                <Button onClick={handleAddBin} className="w-full">Add Bin</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Status Summary */}
@@ -139,10 +237,11 @@ export default function BinMonitoring() {
             </div>
           </CardHeader>
           <CardContent>
-            <BinStatusTable bins={filteredBins} />
+            <BinStatusTable bins={displayBins} />
           </CardContent>
         </Card>
       </div>
     </Layout>
   );
 }
+

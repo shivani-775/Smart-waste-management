@@ -1,17 +1,20 @@
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, TrendingUp, TrendingDown, Activity } from "lucide-react";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export default function Analytics() {
-  const weeklyData = [
-    { day: "Mon", fillLevel: 58, collections: 2, critical: 0 },
-    { day: "Tue", fillLevel: 62, collections: 3, critical: 1 },
-    { day: "Wed", fillLevel: 55, collections: 2, critical: 0 },
-    { day: "Thu", fillLevel: 68, collections: 4, critical: 2 },
-    { day: "Fri", fillLevel: 61, collections: 3, critical: 1 },
-    { day: "Sat", fillLevel: 72, collections: 5, critical: 2 },
-    { day: "Sun", fillLevel: 59, collections: 3, critical: 1 },
-  ];
+  const { weeklyData, isLoading } = useAnalytics();
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-muted-foreground">Loading analytics data...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

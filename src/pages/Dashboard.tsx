@@ -5,28 +5,47 @@ import { BinStatusTable } from "@/components/BinStatusTable";
 import { RouteCard } from "@/components/RouteCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, AlertTriangle, TrendingUp, Gauge } from "lucide-react";
-
-const mockBins = [
-  { id: "1", location: "Connaught Place", capacity: "100L", fillLevel: 45, status: "normal" as const },
-  { id: "2", location: "Gateway of India", capacity: "100L", fillLevel: 78, status: "warning" as const },
-  { id: "3", location: "Howrah Bridge", capacity: "100L", fillLevel: 92, status: "critical" as const },
-  { id: "4", location: "Charminar", capacity: "100L", fillLevel: 23, status: "low" as const },
-];
-
-const mockAlerts = [
-  { message: "Times Square Plaza bin at 92% capacity", time: "5 min ago", severity: "critical" as const },
-  { message: "Central Park Entrance bin needs attention", time: "15 min ago", severity: "warning" as const },
-  { message: "Washington Square Park bin at 85%", time: "1 hour ago", severity: "warning" as const },
-  { message: "Route optimization needed for downtown area", time: "2 hours ago", severity: "info" as const },
-];
-
-const mockRoutes = [
-  { name: "Critical Collection Route", status: "planned" as const, distance: "12.5 km", estimatedTime: "85 min" },
-  { name: "Regular Collection Route A", status: "in_progress" as const, distance: "18.3 km", estimatedTime: "120 min" },
-  { name: "Optimized Route 3", status: "planned" as const, distance: "27.5 km", estimatedTime: "114 min" },
-];
+import { useBins } from "@/hooks/useBins";
+import { useRoutes } from "@/hooks/useRoutes";
+import { useAlerts } from "@/hooks/useAlerts";
 
 export default function Dashboard() {
+  const { bins, isLoading: binsLoading } = useBins();
+  const { routes, isLoading: routesLoading } = useRoutes();
+  const { alerts, isLoading: alertsLoading } = useAlerts();
+
+  const totalBins = bins.length;
+  const criticalBins = bins.filter(b => b.status === "critical").length;
+  const collectionsToday = routes.filter(r => r.status === "in_progress" || r.status === "completed").length;
+  const avgFillLevel = bins.length > 0 
+    ? (bins.reduce((sum, b) => sum + b.fill_level, 0) / bins.length).toFixed(1)
+    : "0.0";
+
+  const displayBins = bins.slice(0, 4).map(bin => ({
+    id: bin.bin_id,
+    location: bin.location,
+    capacity: `${bin.capacity}L`,
+    fillLevel: bin.fill_level,
+    status: bin.status
+  }));
+
+  const displayRoutes = routes.slice(0, 3).map(route => ({
+    name: route.name,
+    status: route.status,
+    distance: `${route.distance_km} km`,
+    estimatedTime: `${route.estimated_time_minutes} min`
+  }));
+
+  if (binsLoading || routesLoading || alertsLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-muted-foreground">Loading dashboard data...</div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -42,26 +61,26 @@ export default function Dashboard() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <MetricCard
             title="Total Bins"
-            value="8"
+            value={totalBins}
             icon={Trash2}
             variant="default"
           />
           <MetricCard
             title="Critical Bins"
-            value="1"
+            value={criticalBins}
             icon={AlertTriangle}
             variant="danger"
-            trend={{ value: "1 from last hour", positive: false }}
+            trend={criticalBins > 0 ? { value: `${criticalBins} need attention`, positive: false } : undefined}
           />
           <MetricCard
             title="Collections Today"
-            value="3"
+            value={collectionsToday}
             icon={TrendingUp}
             variant="success"
           />
           <MetricCard
             title="Avg Fill Level"
-            value="60.3%"
+            value={`${avgFillLevel}%`}
             icon={Gauge}
             variant="warning"
           />
@@ -78,7 +97,7 @@ export default function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <BinStatusTable bins={mockBins} />
+              <BinStatusTable bins={displayBins} />
             </CardContent>
           </Card>
 
@@ -91,9 +110,20 @@ export default function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {mockAlerts.map((alert, index) => (
-                <AlertItem key={index} {...alert} />
-              ))}
+              {alerts.length > 0 ? (
+                alerts.slice(0, 4).map((alert) => (
+                  <AlertItem 
+                    key={alert.id} 
+                    message={alert.message}
+                    time={alert.timeAgo}
+                    severity={alert.severity}
+                  />
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No active alerts
+                </p>
+              )}
             </CardContent>
           </Card>
 
@@ -103,9 +133,15 @@ export default function Dashboard() {
               <CardTitle>Collection Routes</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {mockRoutes.map((route, index) => (
-                <RouteCard key={index} {...route} />
-              ))}
+              {displayRoutes.length > 0 ? (
+                displayRoutes.map((route, index) => (
+                  <RouteCard key={index} {...route} />
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No routes available
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>

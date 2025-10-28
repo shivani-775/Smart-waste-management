@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Settings as SettingsIcon, Bell, Database, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { IoTDocumentation } from "@/components/IoTDocumentation";
 
 export default function Settings() {
   const [autoOptimize, setAutoOptimize] = useState(true);
@@ -29,6 +30,9 @@ export default function Settings() {
             Configure your smart waste management system
           </p>
         </div>
+
+        {/* IoT Documentation */}
+        <IoTDocumentation />
 
         {/* System Configuration */}
         <Card>
@@ -136,3 +140,4 @@ export default function Settings() {
     </Layout>
   );
 }
+

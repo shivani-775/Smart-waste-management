@@ -4,19 +4,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Route, Plus, TrendingDown, Clock, Fuel } from "lucide-react";
 import { toast } from "sonner";
-
-const routes = [
-  { name: "Critical Collection Route", status: "planned" as const, distance: "12.5 km", estimatedTime: "85 min" },
-  { name: "Regular Collection Route A", status: "in_progress" as const, distance: "18.3 km", estimatedTime: "120 min" },
-  { name: "Optimized Route 3", status: "planned" as const, distance: "27.5 km", estimatedTime: "114 min" },
-  { name: "Downtown Collection Route", status: "completed" as const, distance: "15.8 km", estimatedTime: "95 min" },
-  { name: "Suburban Route B", status: "planned" as const, distance: "22.1 km", estimatedTime: "135 min" },
-];
+import { useRoutes } from "@/hooks/useRoutes";
 
 export default function RouteOptimization() {
+  const { routes, isLoading } = useRoutes();
+
   const handleCreateRoute = () => {
     toast.success("New optimized route created successfully!");
   };
+
+  const displayRoutes = routes.map(route => ({
+    name: route.name,
+    status: route.status,
+    distance: `${route.distance_km} km`,
+    estimatedTime: `${route.estimated_time_minutes} min`
+  }));
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-muted-foreground">Loading routes data...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -91,9 +103,15 @@ export default function RouteOptimization() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {routes.map((route, index) => (
-                <RouteCard key={index} {...route} />
-              ))}
+              {displayRoutes.length > 0 ? (
+                displayRoutes.map((route, index) => (
+                  <RouteCard key={index} {...route} />
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground col-span-3 text-center py-4">
+                  No routes available
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
