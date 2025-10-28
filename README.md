@@ -1,73 +1,73 @@
-# Welcome to your Lovable project
+♻️ Smart Waste Management System (IoT Dashboard)
+🌍 Overview
 
-## Project info
+The Smart Waste Management System is an IoT-based platform designed to monitor waste bin levels in real time, optimize collection routes, and enhance waste management efficiency for smart cities.
+It uses sensor-equipped bins to send live data to a central dashboard, where authorities can analyze waste levels, plan collection schedules, and reduce operational costs.
 
-**URL**: https://lovable.dev/projects/87a1c046-b124-4fbb-84aa-8a7cd465c87b
+🚀 Features
 
-## How can I edit this code?
+✅ Real-time Bin Monitoring – Displays current fill levels and status of all bins (Empty, Half, Full, Critical).
+✅ Interactive Dashboard – Visualizes data with charts and statistics for total bins, collection rates, and fill-level trends.
+✅ Route Optimization – Suggests efficient collection routes based on bin locations and fill status.
+✅ Alerts & Notifications – Sends alerts for critical bins or system anomalies.
+✅ Data Analytics – Generates insights for improving collection frequency and city cleanliness.
 
-There are several ways of editing your application.
+🧠 System Architecture
 
-**Use Lovable**
+IoT Layer – Smart bins with ultrasonic sensors to detect fill levels.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/87a1c046-b124-4fbb-84aa-8a7cd465c87b) and start prompting.
+Network Layer – Communication via Wi-Fi or LoRaWAN to transmit data.
 
-Changes made via Lovable will be committed automatically to this repo.
+Cloud Layer – Data stored and processed using a cloud backend (e.g., AWS / Firebase).
 
-**Use your preferred IDE**
+Application Layer – Web-based dashboard for visualization and management.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+(Illustration: Sensors → Gateway → Cloud → Dashboard)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+🛠️ Tech Stack
+Layer	Technology
+Hardware	Ultrasonic Sensor (HC-SR04), ESP8266 / Raspberry Pi
+Communication	MQTT / HTTP
+Backend	Node.js / Express / Firebase
+Frontend	React / Angular with Chart.js
+Database	MongoDB / Firebase Firestore
+Cloud	AWS IoT / Azure / Google Cloud
+Visualization	Recharts / Tailwind UI / Mapbox
+📊 Key Metrics
+Metric	Purpose
+Fill Level (%)	Monitors waste volume in bins
+Collection Efficiency (%)	Measures how optimized routes are
+Response Time (s)	Tracks delay between full bin alert and collection
+Power Usage (mAh)	Evaluates energy efficiency of IoT devices
+Data Accuracy (%)	Validates correctness of sensor readings
+Network Latency (ms)	Assesses communication speed
+System Uptime (%)	Reflects system reliability
+🧩 Benefits
 
-Follow these steps:
+Reduces waste overflow and pollution.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Optimizes resource allocation for waste trucks.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Enhances urban hygiene and sustainability.
 
-# Step 3: Install the necessary dependencies.
-npm i
+Provides data-driven decision support for municipalities.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+🔮 Future Enhancements
 
-**Edit a file directly in GitHub**
+Integration with AI for predictive analytics (forecasting bin fill time).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Mobile app for field workers with route navigation.
 
-**Use GitHub Codespaces**
+Blockchain ledger for transparent waste tracking.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Smart recycling detection using computer vision.
 
-## What technologies are used for this project?
+📈 Result Expectation
 
-This project is built with:
+Operational cost reduction – up to 35–40%
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Collection efficiency – improved by 50–60%
 
-## How can I deploy this project?
+Overflow incidents – reduced by 70%
 
-Simply open [Lovable](https://lovable.dev/projects/87a1c046-b124-4fbb-84aa-8a7cd465c87b) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Data accuracy – above 95%
