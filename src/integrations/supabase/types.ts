@@ -163,6 +163,57 @@ export type Database = {
         }
         Relationships: []
       }
+      collection_history: {
+        Row: {
+          bin_id: string
+          collected_at: string
+          collected_by: string | null
+          created_at: string
+          fill_level_after: number
+          fill_level_before: number
+          id: string
+          notes: string | null
+          route_id: string | null
+        }
+        Insert: {
+          bin_id: string
+          collected_at?: string
+          collected_by?: string | null
+          created_at?: string
+          fill_level_after?: number
+          fill_level_before: number
+          id?: string
+          notes?: string | null
+          route_id?: string | null
+        }
+        Update: {
+          bin_id?: string
+          collected_at?: string
+          collected_by?: string | null
+          created_at?: string
+          fill_level_after?: number
+          fill_level_before?: number
+          id?: string
+          notes?: string | null
+          route_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_history_bin_id_fkey"
+            columns: ["bin_id"]
+            isOneToOne: false
+            referencedRelation: "bins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_history_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "collection_routes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collection_routes: {
         Row: {
           bins: string[] | null
@@ -220,6 +271,36 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          data: Json
+          date_from: string
+          date_to: string
+          generated_by: string | null
+          id: string
+          report_type: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          date_from: string
+          date_to: string
+          generated_by?: string | null
+          id?: string
+          report_type: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          date_from?: string
+          date_to?: string
+          generated_by?: string | null
+          id?: string
+          report_type?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string
@@ -243,6 +324,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      waste_predictions: {
+        Row: {
+          bin_id: string
+          confidence_score: number
+          created_at: string
+          id: string
+          predicted_fill_date: string
+          predicted_fill_level: number
+        }
+        Insert: {
+          bin_id: string
+          confidence_score?: number
+          created_at?: string
+          id?: string
+          predicted_fill_date: string
+          predicted_fill_level: number
+        }
+        Update: {
+          bin_id?: string
+          confidence_score?: number
+          created_at?: string
+          id?: string
+          predicted_fill_date?: string
+          predicted_fill_level?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waste_predictions_bin_id_fkey"
+            columns: ["bin_id"]
+            isOneToOne: false
+            referencedRelation: "bins"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
